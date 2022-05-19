@@ -1,2 +1,1 @@
-# CS103 Group Project JJE
- 
+# CS103 Group Project
