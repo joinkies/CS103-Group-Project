@@ -1,10 +1,8 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-<<<<<<< Updated upstream
-int main() {
 
-=======
 #define LONG_LINE_BREAK "***********************************************************"
 #define LINE_BREAK "*****************************";
 
@@ -59,5 +57,4 @@ int main() {
 		}
 	}
 	return 0;
->>>>>>> Stashed changes
 }
