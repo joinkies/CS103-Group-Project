@@ -1,3 +1,7 @@
 ﻿  main.cpp
-C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(50,14): warning C4101: 'menu_num': unreferenced local variable
+C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(108,15): warning C4101: 'menu_choice': unreferenced local variable
+C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(130,6): warning C4101: 'payment_type': unreferenced local variable
+C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(130,20): warning C4101: 'new_user_type': unreferenced local variable
+C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(158,7): warning C4101: 'pay_driver': unreferenced local variable
+C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\main.cpp(170): warning C4715: 'help': not all control paths return a value
   CS103 Group Project.vcxproj -> C:\Users\jje21\OneDrive - UP Education\Documents\CS103\CS103-Group-Project\CS103 Group Project\x64\Debug\CS103 Group Project.exe
