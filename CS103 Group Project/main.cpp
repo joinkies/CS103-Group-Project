@@ -7,9 +7,6 @@ using namespace std;
 #define LONG_LINE_BREAK "***********************************************************"
 #define LINE_BREAK "*****************************"
 
-// When the program starts, the user is not logged in.
-bool LOGGED_IN = false;
-
 // Established the types of people that can be logged in,
 // so the program knows which to show
 enum loginType { Admin, Driver, Passenger };
@@ -27,6 +24,16 @@ struct userPassenger {
 	string email;
 	string password;
 	loginType user_type = Passenger;
+
+	userPassenger(int an = 0, int a = 0, string fn = "John", string ln = "Smith", paymentType pt = Cash, string e = "N/A", string p = "abc123") {
+		acc_no = an;
+		f_name = fn;
+		l_name = ln;
+		age = a;
+		payment = pt;
+		email = e;
+		password = p;
+	}
 };
 
 struct userDriver {
@@ -35,17 +42,24 @@ struct userDriver {
 	string l_name;
 	int age;
 	paymentType driver_pay;
-
+	float kms_travelled;
 	loginType user_type = Driver;
 };
 
-void registration(loginType user_type);
-void login(loginType user_type);
+bool registration(loginType user_type);
+bool login(loginType user_type);
+string help(int help_where);
+void logOrReg(loginType user_type);
+int getUserAmount();
+/*
 void transLog();
 void lostFound();
 void complaints();
-string help(int help_where);
 void updateUser();
+*/
+// When the program starts, the user is not logged in.
+bool LOGGED_IN = false;
+loginType CURRENT_USER_ACCESS;
 
 
 int main() {
@@ -67,33 +81,12 @@ int main() {
 					cout << help(1);
 				}
 				else if (stoi(menu_choice) <= 4 && stoi(menu_choice) >= 1) {
-					int log_reg;
 					switch (stoi(menu_choice)) {
 					case 1:
-						cout << "  1. Log in\n  2. Register\n Your choice: ";
-						cin >> log_reg;
-						if (log_reg == 1) {
-							login(Driver);
-						}
-						else if (log_reg == 2) {
-							registration(Driver);
-						}
-						else {
-							cout << "\n You must select 1 or 2!\n\n";
-						}
+						logOrReg(Driver);
 						break;
 					case 2:
-						cout << "  1. Log in\n  2. Register\n Your choice: ";
-						cin >> log_reg;
-						if (log_reg == 1) {
-							login(Passenger);
-						}
-						else if (log_reg == 2) {
-							registration(Passenger);
-						}
-						else {
-							cout << "\n You must select 1 or 2!\n\n";
-						}
+						logOrReg(Passenger);
 						break;
 					case 3:
 						login(Admin);
@@ -113,6 +106,7 @@ int main() {
 			}
 		} // End of if (!LOGGED_IN) {}
 		else { // Menu when the user is logged in
+			cout << "\n\tSuccessfule login\n\n";
 
 		}
 	} // End of while loop
@@ -120,51 +114,103 @@ int main() {
 	return 0;
 }
 
-void login(loginType user_type) {
-	cout << "\nLogin\n\n";
+void logOrReg(loginType user_type) {
+	login_restart:
+		string log_reg;
+		cout << "  1. Log in\n  2. Register\n Your choice: ";
+		cin >> log_reg;
+		try {
+			if (log_reg == "help") {
+				cout << help(2);
+				goto login_restart;
+			}
+			else if (stoi(log_reg) == 1) {
+				LOGGED_IN = login(user_type);
+			}
+			else if (stoi(log_reg) == 2) {
+				LOGGED_IN = registration(user_type);
+			}
+			else {
+				cout << "\n You must select 1, 2 or type in help!\n\n";
+				goto login_restart;
+			}
+		}
+		catch (const invalid_argument) {
+			cout << "\n Type 1, 2 or 'help'\n\n";
+			goto login_restart;
+		}
 }
 
-void registration(loginType user_type) {
-	cout << "\n\nUser Registration\n" << LINE_BREAK << endl;
-	
-	int payment_type, new_user_type;
+bool login(loginType user_type) {
+	cout << "\nLogin\n\n";
+	return false;
+}
 
-	fstream file;
+int getUserAmount() {
+	ifstream countfile;
+	countfile.open("users.csv");
 
-	file.open("users.csv", ios::out | ios::trunc);
+	int users = 0;
+	string line;
+	while (getline(countfile, line)) {
+		users++;
+	}
+
+	countfile.close();
+
+	return users;
+}
+
+bool registration(loginType user_type) {	
+	int payment_type;
+	bool return_value = false;
+
+	int users_in_file = getUserAmount();
+
+	ofstream file;
+	file.open("users.csv", ios::app);
 
 	switch (user_type) {
 	case Driver: {
 		userDriver driver;
 		cout << "\nDriver Reg\n" << LINE_BREAK << endl;
+		return_value = true;
 		break;
 	}
 	case Passenger:
 		userPassenger passenger;
 		cout << "\nPassenger Registration\n" << LINE_BREAK << endl;
 		cout << "Enter your first name: ";
-		getline(cin, passenger.f_name);
-		cin.ignore();
+		cin >> passenger.f_name;
 		cout << "Enter last name: ";
-		getline(cin, passenger.l_name);
-		cin.ignore();
+		cin >> passenger.l_name;
 		cout << "Enter your age: ";
 		cin >> passenger.age;
 		cout << "Enter e-mail address: ";
 		cin >> passenger.email;
 		cout << "Provide a strong password: ";
 		cin >> passenger.password;
-		cout << "1. Cash\n2. Card\nTo pay drivers? ";
-		int pay_driver;
-
+		cout << "1. Cash\n2. Card\n Your choice?: ";
+		cin >> payment_type;
+		passenger.payment = paymentType(payment_type--);
+		file << users_in_file << ',' << "Passenger" << ',' << passenger.f_name << ',' << passenger.l_name << ',' << passenger.age << ',' << passenger.email << ',' << passenger.payment << ',' << passenger.password << endl;
+		
+		return_value = true;
 		break;
 	}
-}
+
+	file.close();
+
+	return return_value;
+} // End of registration function
 
 string help(int help_where) {
 	switch (help_where) {
 	case 1:
 		return "\n  Enter the number corresponding\n  to your desired action\n\n";
-		break;
+	case 2:
+		return "\n  Select whether you want to login or register\n  as a new user, then provide all the neccessary information.\n\n";
+	default:
+		return "\n  Help not found\n\n";
 	}
 }
