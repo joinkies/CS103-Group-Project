@@ -89,7 +89,6 @@ int getUserAmount();
 const int KILOMETER_RATE = 3;
 
 //Functions Jack Added:
-//void menu(loginType user_type, userPassenger passenger);
 void passengerMenu(userPassenger passenger);
 void driverMenu(userDriver driver);
 void adminMenu();
@@ -200,7 +199,17 @@ login_restart:
 }
 
 bool login(loginType user_type) {
-	cout << "\nLogin\n\n";
+	switch (user_type) {
+	case 0:
+		adminMenu();
+		break;
+	case 1:
+		cout << "Driver";
+		break;
+	case 2:
+		cout << "Passsenger";
+		break;
+	}
 	return false;
 }
 
@@ -418,7 +427,45 @@ menu_restart:
 }
 
 void adminMenu() {
-	cout << "Admin Menu";
+menu_restart:
+	int menuType;
+	bool loggedIn = true;
+
+	while (loggedIn) {
+		cout << LONG_LINE_BREAK << endl;
+		cout << "\t\tMenu - Admin" << endl;
+		cout << LONG_LINE_BREAK << endl;
+		cout << "\t1. Trips and Total Income" << endl;
+		cout << "\t2. User Information" << endl;
+		cout << "\t3. Driver Information" << endl;
+		cout << "\t4. View Terms & Conditions" << endl;
+		cout << "\t5. Log Out" << endl;
+		cout << "Enter Option: ";
+		cin >> menuType;
+
+		switch (menuType) {
+		case 1:
+			income();
+			break;
+		case 2:
+			userInfo();
+			break;
+		case 3:
+			driverInfo();
+			break;
+		case 4:
+			tAndC();
+			break;
+		case 5:
+			cout << "Logout" << endl;
+			loggedIn = false;
+			break;
+		default:
+			cout << "Error" << endl;
+			goto menu_restart;
+			break;
+		}
+	}
 }
 
 void tAndC() {
