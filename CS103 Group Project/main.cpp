@@ -102,8 +102,11 @@ bool login(loginType user_type);
 string help(int help_where);
 void logOrReg(loginType user_type);
 int getUserAmount();
+
 //base cost per kilometer
 const int KILOMETER_RATE = 3;
+const int TIME_RATE = 1;
+const double GST = 0.15;
 
 //Functions Jack Added:
 void passengerMenu(userPassenger passenger);
@@ -570,12 +573,15 @@ void tripBookings() {
 void enterJobDetails(int job) {
 	int tripDist;
 	int tripTime;
+	int tripCost;
 
 	cout << "Job " << job << " selected:" << endl;
-	cout << "How far was the trip: ";
+	cout << "How far was the trip (kms): ";
 	cin >> tripDist;
-	cout << "How long did the trip take: ";
+	cout << "How long did the trip take (mins): ";
 	cin >> tripTime;
+
+	tripCost = (tripDist * KILOMETER_RATE) + (tripTime * TIME_RATE);
 
 	int loop = 1;
 	ofstream outfile;
@@ -610,6 +616,7 @@ void enterJobDetails(int job) {
 	}
 	outfile << "Trip Distance:\n" << tripDist << endl;
 	outfile << "Time Taken:\n" << tripTime << endl;
+	outfile << "Trip Cost:\n" << tripCost << endl;
 
 	outfile.close();
 }
@@ -689,11 +696,40 @@ void tripCost() {
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Trip Cost" << endl;
 	cout << LONG_LINE_BREAK << endl;
-	cout << "It costs $" << KILOMETER_RATE << " per kilometer driving with us!" << endl;
+	cout << "It costs $" << KILOMETER_RATE << " per kilometer and $" << TIME_RATE << " for every minute spent driving with us" << endl;
 }
 
 void income() {
 	cout << "Trips and Total Income" << endl;
+	double totalIncome = 0.00;
+
+	int trip = 0;
+	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Completed_Rides/";
+	for (const auto& entry : fs::directory_iterator(path)) {
+		ifstream infile;
+		infile.open(entry.path());
+		int line = 1;
+
+		if (infile.is_open()) {   //checking whether the file is open
+			trip++;
+			cout << endl << "Trip: " << trip << endl;
+			cout << LONG_LINE_BREAK << endl;
+			string tp;
+			while (getline(infile, tp)) { //read data from file object and put it into string.
+				cout << tp << endl; //print the data of the string
+				if (line == 28) {
+					totalIncome += stoi(tp);
+
+				}
+				line++;
+			}
+			infile.close(); //close the file object.
+		}
+	}
+	double totalIncomeAfterTax = totalIncome - totalIncome * GST;
+
+	cout << endl << "Toal Income: $" << totalIncome << endl;
+	cout << "Toal Income After Tax: $" << totalIncomeAfterTax << endl;
 }
 
 void userInfo() {
