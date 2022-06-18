@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 using namespace std;
+
+namespace fs = filesystem;
 
 // Defining some common formatting elements
 #define LONG_LINE_BREAK "***********************************************************"
@@ -15,6 +18,20 @@ struct cc {
 	int card_no;
 	int card_xp;
 	int card_cvc;
+};
+
+//stores requested rides
+struct Request {
+	string passengerName;
+	string locStreetName;
+	int locStreetNum;
+	string locSuburb;
+	string locCity;
+
+	string destStreetName;
+	int destStreetNum;
+	string destSuburb;
+	string destCity;
 };
 
 // User struct holds all the relevant info the user currently logged in
@@ -95,13 +112,14 @@ void adminMenu();
 void tAndC();
 
 //user functions
-void requestRide();
+void requestRide(userPassenger passenger);
 void updatePayment(userPassenger passenger);
 void tripCost();
 
 //driver functions
 void bankDetails();
 void tripBookings();
+void enterJobDetails(int job);
 void dayReport();
 
 //admin functions
@@ -360,7 +378,7 @@ menu_restart:
 		//checks user input from the menu screen
 		switch (menuType) {
 		case 1:
-			requestRide();
+			requestRide(passenger);
 			break;
 		case 2:
 			updatePayment(passenger);
@@ -469,11 +487,131 @@ menu_restart:
 }
 
 void tAndC() {
+	char agree;
+	cout << LONG_LINE_BREAK << endl;
 	cout << "Terms and Conditions" << endl;
+	cout << LONG_LINE_BREAK << endl;
+
+	cout << "1. afjbsdk*bskgbsgjgbksg\n";
+	cout << "2. dfhsdujafsdgs\n";
+	cout << "3. dsgihisgobonpnfsdbs\n";
+	cout << "4. sdgbsbgoasdkgiw\n\n";
+
+	cout << "Do you agree to the terms and conditions above? (y/n)";
+	cin >> agree;
+
+	switch (agree) {
+	case 'y':
+		cout << "You agree" << endl;
+		break;
+	case 'n':
+		cout << "You Disagree" << endl;
+		break;
+	default:
+		cout << "You have to input either 'y' or 'n'" << endl;
+		break;
+	}
 }
 
 void tripBookings() {
-	cout << "Trip Bookings" << endl;
+	cout << LONG_LINE_BREAK << endl;
+	cout << "Current Jobs: " << endl;
+	cout << LONG_LINE_BREAK << endl << endl;
+
+	//reads 'Available_Rides' folder and displays all the txt files in it
+	int jobs = 0;
+	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/";
+	for (const auto& entry : fs::directory_iterator(path)) {
+		ifstream infile;
+		infile.open(entry.path());
+
+		if (infile.is_open()) {   //checking whether the file is open
+			jobs++;
+			cout << "Job " << jobs << endl;
+			cout << LONG_LINE_BREAK << endl;
+			string tp;
+			while (getline(infile, tp)) { //read data from file object and put it into string.
+				cout << tp << endl; //print the data of the string
+			}
+			infile.close(); //close the file object.
+		}
+	}
+	int whichJob;
+	char takeOnlyJob;
+
+	//checks what job the driver wants to take
+	if (jobs == 0) {
+		cout << "There are no jobs at the moment :(" << endl;
+	}
+	else if (jobs == 1) {
+		cout << "There is 1 job available would you like to take it? (y/n) ";
+		cin >> takeOnlyJob;
+		switch (takeOnlyJob) {
+		case 'y':
+			enterJobDetails(1);
+			break;
+		case 'n':
+			break;
+		}
+	}
+	else {
+		cout << "Which job would you like to take? (1-" << jobs << ")" << endl;
+		cout << "(Enter '0' if you wish to return to the menu)" << endl;
+		cin >> whichJob;
+		if (whichJob == 0) {
+			cout << endl;
+		}
+		else {
+			enterJobDetails(whichJob);
+		}
+	}
+}
+
+void enterJobDetails(int job) {
+	int tripDist;
+	int tripTime;
+
+	cout << "Job " << job << " selected:" << endl;
+	cout << "How far was the trip: ";
+	cin >> tripDist;
+	cout << "How long did the trip take: ";
+	cin >> tripTime;
+
+	int loop = 1;
+	ofstream outfile;
+
+	//copys ride details to a new file in 'Completed Rides' and deletes ride request
+	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/";
+	for (const auto& entry : fs::directory_iterator(path)) {
+		if (loop == job) {
+			ifstream infile;
+			infile.open(entry.path());
+
+			string fLine;
+			getline(infile, fLine);
+			string name = fLine + ".txt";
+
+			outfile.open("C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Completed_Rides/" + name);
+			outfile << fLine << endl;
+
+			if (infile.is_open()) {   //checking whether the file is open
+				string tp;
+				while (getline(infile, tp)) { //read data from file object and put it into string.
+					outfile << tp << endl; //print the data of the string
+				}
+				infile.close(); //close the file object.
+				remove(entry.path());//removes the ride request as it has been completed
+			}
+			break;
+		}
+		else {
+			loop++;
+		}
+	}
+	outfile << "Trip Distance:\n" << tripDist << endl;
+	outfile << "Time Taken:\n" << tripTime << endl;
+
+	outfile.close();
 }
 
 void bankDetails() {
@@ -484,18 +622,8 @@ void dayReport() {
 	cout << "Day Report" << endl;
 }
 
-void requestRide() {
-	//variables for passengers current location
-	string locStreetName;
-	int locStreetNum;
-	string locSuburb;
-	string locCity;
-
-	//variables for passengers destination
-	string destStreetName;
-	int destStreetNum;
-	string destSuburb;
-	string destCity;
+void requestRide(userPassenger passenger) {
+	Request ride;
 
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Request a ride" << endl;
@@ -503,30 +631,58 @@ void requestRide() {
 
 	cout << "Current Location:" << endl;
 	cout << "Street Name: ";
-	cin >> locStreetName;
+	cin >> ride.locStreetName;
 	cout << "Street Number: ";
-	cin >> locStreetNum;
+	cin >> ride.locStreetNum;
 	cout << "Suburb: ";
-	cin >> locSuburb;
+	cin >> ride.locSuburb;
 	cout << "City: ";
-	cin >> locCity;
+	cin >> ride.locCity;
 
 	cout << endl << "Destination:" << endl;
 	cout << "Street Name: ";
-	cin >> destStreetName;
+	cin >> ride.destStreetName;
 	cout << "Street Number: ";
-	cin >> destStreetNum;
+	cin >> ride.destStreetNum;
 	cout << "Suburb: ";
-	cin >> destSuburb;
+	cin >> ride.destSuburb;
 	cout << "City: ";
-	cin >> destCity;
+	cin >> ride.destCity;
 	cout << endl;
+
+	string fileName = passenger.f_name + "_" + passenger.l_name + ".txt";
+	ride.passengerName = passenger.f_name + " " + passenger.l_name;
+
+	//writes to file
+	ofstream outfile;
+	outfile.open("C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/" + fileName);
+	outfile << ride.passengerName << endl << endl;
+	outfile << "Current Location:" << endl;
+	outfile << "Street Name:\n" << ride.locStreetName << endl;
+	outfile << "Street Number:\n" << ride.locStreetNum << endl;
+	outfile << "Suburb:\n" << ride.locSuburb << endl;
+	outfile << "City:\n" << ride.locCity << endl << endl;
+
+	outfile << "Destination:" << endl;
+	outfile << "Street Name:\n" << ride.destStreetName << endl;
+	outfile << "Street Number:\n" << ride.destStreetNum << endl;
+	outfile << "Suburb:\n" << ride.destSuburb << endl;
+	outfile << "City:\n" << ride.destCity << endl << endl;
+
+	outfile.close();
 }
 
 void updatePayment(userPassenger passenger) {
+	char showCardDetails;
+	char updateCardDetails;
+
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Update Payment Type" << endl;
 	cout << LONG_LINE_BREAK << endl;
+
+	cout << passenger.card_details.card_no;
+	cout << passenger.card_details.card_xp;
+	cout << passenger.card_details.card_cvc;
 }
 
 void tripCost() {
