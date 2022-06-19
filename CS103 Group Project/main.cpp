@@ -524,7 +524,7 @@ void tripBookings() {
 
 	//reads 'Available_Rides' folder and displays all the txt files in it
 	int jobs = 0;
-	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/";
+	string path = "Available_Rides/";
 	for (const auto& entry : fs::directory_iterator(path)) {
 		ifstream infile;
 		infile.open(entry.path());
@@ -589,7 +589,7 @@ void enterJobDetails(int job) {
 	ofstream outfile;
 
 	//copys ride details to a new file in 'Completed Rides' and deletes ride request
-	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/";
+	string path = "Available_Rides/";
 	for (const auto& entry : fs::directory_iterator(path)) {
 		if (loop == job) {
 			ifstream infile;
@@ -599,7 +599,7 @@ void enterJobDetails(int job) {
 			getline(infile, fLine);
 			string name = fLine + ".txt";
 
-			outfile.open("C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Completed_Rides/" + name);
+			outfile.open("Completed_Rides/" + name);
 			outfile << fLine << endl;
 
 			if (infile.is_open()) {
@@ -682,12 +682,12 @@ void requestRide(userPassenger passenger) {
 	cin >> ride.destCity;
 	cout << endl;
 
-	string fileName = passenger.f_name + "_" + passenger.l_name + ".txt";
+	string fileName = passenger.f_name + " " + passenger.l_name + ".txt";
 	ride.passengerName = passenger.f_name + " " + passenger.l_name;
 
 	//writes to file
 	ofstream outfile;
-	outfile.open("C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Available_Rides/" + fileName);
+	outfile.open("Available_Rides/" + fileName);
 	outfile << ride.passengerName << endl << endl;
 	outfile << "Current Location:" << endl;
 	outfile << "Street Name:\n" << ride.locStreetName << endl;
@@ -748,7 +748,7 @@ void income() {
 	double totalIncome = 0.00;
 
 	int trip = 0;
-	string path = "C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Completed_Rides/";
+	string path = "Completed_Rides/";
 	for (const auto& entry : fs::directory_iterator(path)) {
 		ifstream infile;
 		infile.open(entry.path());
