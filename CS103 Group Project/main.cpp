@@ -3,7 +3,6 @@
 #include <string>
 #include <filesystem>
 using namespace std;
-
 namespace fs = filesystem;
 
 // Defining some common formatting elements
@@ -108,7 +107,6 @@ const int KILOMETER_RATE = 3;
 const int TIME_RATE = 1;
 const double GST = 0.15;
 
-//Functions Jack Added:
 void passengerMenu(userPassenger passenger);
 void driverMenu(userDriver driver);
 void adminMenu();
@@ -120,7 +118,7 @@ void updatePayment(userPassenger passenger);
 void tripCost();
 
 //driver functions
-void bankDetails();
+void bankDetails(userDriver driver);
 void tripBookings();
 void enterJobDetails(int job);
 void dayReport();
@@ -130,18 +128,12 @@ void income();
 void userInfo();
 void driverInfo();
 
-/*
-void transLog();
-void lostFound();
-void complaints();
-void updateUser();
-*/
 // When the program starts, the user is not logged in.
 bool LOGGED_IN = false;
 loginType CURRENT_USER_ACCESS;
 
-
 int main() {
+menu_restart:
 	bool program_running = true;
 
 	cout << LONG_LINE_BREAK << endl;
@@ -187,6 +179,8 @@ int main() {
 		else { // Menu when the user is logged in
 			cout << "\n\tSuccessfule login\n\n";
 		}
+		LOGGED_IN = false;
+		goto menu_restart;
 	} // End of while loop
 
 	return 0;
@@ -361,6 +355,7 @@ string help(int help_where) {
 	}
 }
 
+//menu for user passenger
 void passengerMenu(userPassenger passenger) {
 menu_restart:
 	int menuType;
@@ -404,6 +399,7 @@ menu_restart:
 	}
 }
 
+//menu for user driver
 void driverMenu(userDriver driver) {
 menu_restart:
 	int menuType;
@@ -427,7 +423,7 @@ menu_restart:
 			tripBookings();
 			break;
 		case 2:
-			bankDetails();
+			bankDetails(driver);
 			break;
 		case 3:
 			dayReport();
@@ -447,6 +443,7 @@ menu_restart:
 	}
 }
 
+//menu for user admin
 void adminMenu() {
 menu_restart:
 	int menuType;
@@ -464,6 +461,7 @@ menu_restart:
 		cout << "Enter Option: ";
 		cin >> menuType;
 
+		//checks user input from the menu screen
 		switch (menuType) {
 		case 1:
 			income();
@@ -489,6 +487,7 @@ menu_restart:
 	}
 }
 
+//terms and conditions
 void tAndC() {
 	char agree;
 	cout << LONG_LINE_BREAK << endl;
@@ -500,6 +499,7 @@ void tAndC() {
 	cout << "3. dsgihisgobonpnfsdbs\n";
 	cout << "4. sdgbsbgoasdkgiw\n\n";
 
+	//checks if the user agrees with the terms and conditions
 	cout << "Do you agree to the terms and conditions above? (y/n)";
 	cin >> agree;
 
@@ -516,6 +516,7 @@ void tAndC() {
 	}
 }
 
+//displays if there is any jobs to take for the driver
 void tripBookings() {
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Current Jobs: " << endl;
@@ -533,10 +534,10 @@ void tripBookings() {
 			cout << "Job " << jobs << endl;
 			cout << LONG_LINE_BREAK << endl;
 			string tp;
-			while (getline(infile, tp)) { //read data from file object and put it into string.
-				cout << tp << endl; //print the data of the string
+			while (getline(infile, tp)) {
+				cout << tp << endl;
 			}
-			infile.close(); //close the file object.
+			infile.close();
 		}
 	}
 	int whichJob;
@@ -570,6 +571,7 @@ void tripBookings() {
 	}
 }
 
+//driver enters the job details and it gets put into a file
 void enterJobDetails(int job) {
 	int tripDist;
 	int tripTime;
@@ -600,12 +602,12 @@ void enterJobDetails(int job) {
 			outfile.open("C:/Users/jackm/source/repos/Jack_Giddens_Taxi_V3/Jack_Giddens_Taxi_V3/Completed_Rides/" + name);
 			outfile << fLine << endl;
 
-			if (infile.is_open()) {   //checking whether the file is open
+			if (infile.is_open()) {
 				string tp;
-				while (getline(infile, tp)) { //read data from file object and put it into string.
-					outfile << tp << endl; //print the data of the string
+				while (getline(infile, tp)) {
+					outfile << tp << endl;
 				}
-				infile.close(); //close the file object.
+				infile.close();
 				remove(entry.path());//removes the ride request as it has been completed
 			}
 			break;
@@ -621,14 +623,37 @@ void enterJobDetails(int job) {
 	outfile.close();
 }
 
-void bankDetails() {
-	cout << "Bank Details" << endl;
+//view and update bank details
+void bankDetails(userDriver driver) {
+	char askUserUpdate;
+
+	cout << LONG_LINE_BREAK << endl;
+	cout << "Update Bank Details" << endl;
+	cout << LONG_LINE_BREAK << endl;
+
+	cout << "Would you like to update your bank details? (y/n): ";
+	cin >> askUserUpdate;
+
+	switch (askUserUpdate) {
+	case 'y':
+		cout << "Enter bank number: ";
+		cin >> driver.bank_number;
+		//still needs the code to update the file
+		break;
+	case 'n':
+		cout << "no";
+		break;
+	default:
+		cout << "error";
+		break;
+	}
 }
 
 void dayReport() {
 	cout << "Day Report" << endl;
 }
 
+//user can request a ride
 void requestRide(userPassenger passenger) {
 	Request ride;
 
@@ -679,19 +704,37 @@ void requestRide(userPassenger passenger) {
 	outfile.close();
 }
 
+//updates the user payment details
 void updatePayment(userPassenger passenger) {
-	char showCardDetails;
-	char updateCardDetails;
+	char askUserUpdate;
 
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Update Payment Type" << endl;
 	cout << LONG_LINE_BREAK << endl;
 
-	cout << passenger.card_details.card_no;
-	cout << passenger.card_details.card_xp;
-	cout << passenger.card_details.card_cvc;
+	cout << "Would you like to update your card details? (y/n): ";
+	cin >> askUserUpdate;
+
+	switch (askUserUpdate) {
+	case 'y':
+		cout << "Enter card number: ";
+		cin >> passenger.card_details.card_no;
+		cout << "Enter card expiry: ";
+		cin >> passenger.card_details.card_xp;
+		cout << "Enter card cvc: ";
+		cin >> passenger.card_details.card_cvc;
+
+		//still needs the code to update the file
+		break;
+	case 'n':
+		break;
+	default:
+		cout << "error";
+		break;
+	}
 }
 
+//displays trip cost fees
 void tripCost() {
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Trip Cost" << endl;
@@ -699,6 +742,7 @@ void tripCost() {
 	cout << "It costs $" << KILOMETER_RATE << " per kilometer and $" << TIME_RATE << " for every minute spent driving with us" << endl;
 }
 
+//displays all the past trips and income
 void income() {
 	cout << "Trips and Total Income" << endl;
 	double totalIncome = 0.00;
@@ -715,8 +759,8 @@ void income() {
 			cout << endl << "Trip: " << trip << endl;
 			cout << LONG_LINE_BREAK << endl;
 			string tp;
-			while (getline(infile, tp)) { //read data from file object and put it into string.
-				cout << tp << endl; //print the data of the string
+			while (getline(infile, tp)) {
+				cout << tp << endl;
 				if (line == 28) {
 					totalIncome += stoi(tp);
 
@@ -727,8 +771,8 @@ void income() {
 		}
 	}
 	double totalIncomeAfterTax = totalIncome - totalIncome * GST;
-
-	cout << endl << "Toal Income: $" << totalIncome << endl;
+	cout << LONG_LINE_BREAK << endl;
+	cout << "Toal Income: $" << totalIncome << endl;
 	cout << "Toal Income After Tax: $" << totalIncomeAfterTax << endl;
 }
 
