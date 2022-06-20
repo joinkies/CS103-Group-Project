@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <vector>
 #include <filesystem>
 using namespace std;
 namespace fs = filesystem;
@@ -9,14 +11,16 @@ namespace fs = filesystem;
 #define LONG_LINE_BREAK "***********************************************************"
 #define LINE_BREAK "*****************************"
 
+// Established the types of people that can be logged in,
+// so the program knows which to show
 enum loginType { Admin, Driver, Passenger };
 
 enum carType { Van = 1, Hybrid, Electric, Petrol, Diesel };
 
 struct cc {
-	int card_no;
-	int card_xp;
-	int card_cvc;
+	string card_no,
+		card_xp,
+		card_cvc;
 };
 
 //stores requested rides
@@ -36,14 +40,14 @@ struct Request {
 // User struct holds all the relevant info the user currently logged in
 struct userPassenger {
 	int acc_no;
-	string f_name;
-	string l_name;
-	int age;
+	string f_name,
+		l_name,
+		age,
+		phone_number,
+		address,
+		email,
+		password;
 	cc card_details;
-	int phone_number;
-	string address;
-	string email;
-	string password;
 	loginType user_type = Passenger;
 
 	userPassenger() {
@@ -51,10 +55,10 @@ struct userPassenger {
 		f_name = "John";
 		l_name = "Smith";
 		age = 18;
-		card_details.card_no = 0000000000000000;
-		card_details.card_xp = 0125;
-		card_details.card_cvc = 001;
-		phone_number = 0000000000;
+		card_details.card_no = "0000000000000000";
+		card_details.card_xp = "0125";
+		card_details.card_cvc = "001";
+		phone_number = "0000000000";
 		address = "142 Wallaby Way";
 		email = "N/A";
 		password = "abc123";
@@ -63,41 +67,48 @@ struct userPassenger {
 
 struct userDriver {
 	int acc_no;
-	string f_name;
-	string l_name;
-	int age;
-	int phone_number;
-	string address;
-	int bank_number;
-	string license_number;
-	int driving_exp;
-	carType car_type;
-	int car_age;
-	float kms_travelled;
+	string f_name,
+		l_name,
+		age,
+		phone_number,
+		address,
+		bank_number,
+		license_number,
+		driving_exp,
+		car_type,
+		car_age,
+		kms_travelled,
+		email,
+		password;
 	loginType user_type = Driver;
-	string email;
-	string password;
 
 	userDriver() {
 		acc_no = 0;
 		f_name = "John";
 		l_name = "Smith";
-		age = 21;
-		phone_number = 0000000000000000;
+		age = "21";
+		phone_number = "0000000000000000";
 		address = "142 Wallaby Way";
-		bank_number = 0000000000000000;
+		bank_number = "0000000000000000";
 		license_number = "idk";
-		driving_exp = 2;
+		driving_exp = "2";
 		car_type = Hybrid;
-		car_age = 1;
-		kms_travelled = 0.0;
+		car_age = "1";
+		kms_travelled = "0.0";
 		email = "N/A";
 		password = "abc123";
 	}
 };
 
+struct userAdmin {
+	int id;
+	string email;
+	string password;
+	loginType user_type = Admin;
+};
+
 bool registration(loginType user_type);
-bool login(loginType user_type);
+bool login();
 string help(int help_where);
 void logOrReg(loginType user_type);
 int getUserAmount();
@@ -110,6 +121,8 @@ const double GST = 0.15;
 void passengerMenu(userPassenger passenger);
 void driverMenu(userDriver driver);
 void adminMenu();
+
+//terms and conditions
 void tAndC();
 
 //user functions
@@ -128,9 +141,12 @@ void income();
 void userInfo();
 void driverInfo();
 
-// When the program starts, the user is not logged in.
 bool LOGGED_IN = false;
 loginType CURRENT_USER_ACCESS;
+int CURRENT_USERID;
+userDriver currentDriver;
+userPassenger currentPassenger;
+
 
 int main() {
 menu_restart:
@@ -160,7 +176,7 @@ menu_restart:
 						logOrReg(Passenger);
 						break;
 					case 3:
-						login(Admin);
+						login();
 						break;
 					case 4:
 						program_running = false;
@@ -177,10 +193,26 @@ menu_restart:
 			}
 		} // End of if (!LOGGED_IN) {}
 		else { // Menu when the user is logged in
-			cout << "\n\tSuccessfule login\n\n";
+			switch (CURRENT_USER_ACCESS)
+			{
+			case Admin:
+				adminMenu();
+				break;
+			case Driver:
+				driverMenu(currentDriver);
+				break;
+			case Passenger:
+				passengerMenu(currentPassenger);
+				break;
+			default:
+				break;
+			}
+
+			LOGGED_IN = false;
+			goto menu_restart;
+
+			return 0;
 		}
-		LOGGED_IN = false;
-		goto menu_restart;
 	} // End of while loop
 
 	return 0;
@@ -197,7 +229,7 @@ login_restart:
 			goto login_restart;
 		}
 		else if (stoi(log_reg) == 1) {
-			LOGGED_IN = login(user_type);
+			LOGGED_IN = login();
 		}
 		else if (stoi(log_reg) == 2) {
 			LOGGED_IN = registration(user_type);
@@ -213,18 +245,72 @@ login_restart:
 	}
 }
 
-bool login(loginType user_type) {
-	switch (user_type) {
-	case 0:
-		adminMenu();
-		break;
-	case 1:
-		cout << "Driver";
-		break;
-	case 2:
-		cout << "Passsenger";
-		break;
+bool login() {
+	cout << "\nLogin\n\n";
+
+	ifstream login_from_file;
+	login_from_file.open("users.csv");
+
+	string line, email, password;
+
+	cout << "Enter your email: ";
+	cin >> email;
+	cout << "Enter you password: ";
+	cin >> password;
+
+	while (login_from_file) {
+		getline(login_from_file, line);
+
+		string arr[12];
+
+		stringstream ss(line);
+		int i = 0;
+		while (ss.good()) {
+			string a;
+			getline(ss, a, ',');
+			arr[i] = a;
+			i++;
+		}
+		if (arr[1] == email) {
+			if (arr[2] == password) {
+				cout << "\nSuccessful login\n\n";
+				if (arr[3] == "Driver") {
+					CURRENT_USER_ACCESS = Driver;
+					currentDriver.acc_no = stoi(arr[0]);
+					currentDriver.email = arr[1];
+					currentDriver.password = arr[2];
+					currentDriver.f_name = arr[4];
+					currentDriver.l_name = arr[5];
+					currentDriver.age = arr[6];
+					currentDriver.bank_number = arr[7];
+					currentDriver.license_number = arr[8];
+					currentDriver.driving_exp = arr[9];
+					currentDriver.car_type = arr[10];
+					currentDriver.car_age = arr[11];
+				}
+				else if (arr[3] == "Passenger") {
+					CURRENT_USER_ACCESS = Passenger;
+					currentPassenger.acc_no = stoi(arr[0]);
+					currentPassenger.email = arr[1];
+					currentPassenger.password = arr[2];
+					currentPassenger.f_name = arr[4];
+					currentPassenger.l_name = arr[5];
+					currentPassenger.age = arr[6];
+					currentPassenger.card_details.card_no = arr[7];
+					currentPassenger.card_details.card_xp = arr[8];
+					currentPassenger.card_details.card_cvc = arr[9];
+					currentPassenger.phone_number = arr[10];
+					currentPassenger.address = arr[11];
+				}
+				else {
+					CURRENT_USER_ACCESS = Admin;
+				}
+				return true;
+			}
+			break;
+		}
 	}
+	cout << "Account not found!\n\n";
 	return false;
 }
 
@@ -244,7 +330,6 @@ int getUserAmount() {
 }
 
 bool registration(loginType user_type) {
-	int payment_type;
 	bool return_value = false;
 
 	int users_in_file = getUserAmount();
@@ -266,7 +351,7 @@ bool registration(loginType user_type) {
 		cin >> driver.bank_number;
 		cout << "Enter your license number: ";
 		cin >> driver.license_number;
-		cout << "How many years of driving experience do you have in years: ";
+		cout << "How many years of driving experience do you have: ";
 		cin >> driver.driving_exp;
 		// enum carType { Van = 1, Hybrid, Electric, Petrol, Diesel };
 		cout << "What is your car type?\n 1. Van\n 2. Hybrid\n 3. Electric\n 4. Petrol\n 5. Diesel\nEnter the corrospondiong number: ";
@@ -289,12 +374,11 @@ bool registration(loginType user_type) {
 			<< driver.license_number << ','
 			<< driver.driving_exp << ','
 			<< car_type << ','
-			<< driver.car_type << ','
 			<< driver.car_age << endl;
 
 		return_value = true;
 		CURRENT_USER_ACCESS = Driver;
-		driverMenu(driver);
+		currentDriver = driver;
 		break;
 	}
 	case Passenger:
@@ -307,35 +391,38 @@ bool registration(loginType user_type) {
 		cout << "Enter your age: ";
 		cin >> passenger.age;
 		cout << "Enter your card details\n";
+		cin.ignore();
 		cout << "Card number: ";
-		cin >> passenger.card_details.card_no;
-		cout << "Card expiry date (MMYY): ";
+		getline(cin, passenger.card_details.card_no);
+		cout << "Card expiry date (MM/YY): ";
 		cin >> passenger.card_details.card_xp;
 		cout << "Card CVC number: ";
 		cin >> passenger.card_details.card_cvc;
+		cin.ignore();
 		cout << "Enter your phone number: ";
-		cin >> passenger.phone_number;
+		getline(cin, passenger.phone_number);
+		cin.ignore();
 		cout << "Provide your address: ";
-		cin >> passenger.address;
+		getline(cin, passenger.address);
 		cout << "Enter e-mail address: ";
 		cin >> passenger.email;
 		cout << "Provide a strong password: ";
 		cin >> passenger.password;
 		file << users_in_file << ','
+			<< passenger.email << ','
+			<< passenger.password << ','
 			<< "Passenger" << ','
 			<< passenger.f_name << ','
 			<< passenger.l_name << ','
 			<< passenger.age << ','
-			<< passenger.email << ','
 			<< passenger.card_details.card_no << ','
 			<< passenger.card_details.card_xp << ','
 			<< passenger.card_details.card_cvc << ','
 			<< passenger.phone_number << ','
-			<< passenger.address << ','
-			<< passenger.password << endl;
+			<< passenger.address << endl;
 		return_value = true;
 		CURRENT_USER_ACCESS = Passenger;
-		passengerMenu(passenger);
+		currentPassenger = passenger;
 		break;
 	}
 
@@ -354,6 +441,9 @@ string help(int help_where) {
 		return "\n  Help not found\n\n";
 	}
 }
+
+//**************************************************************************************************************
+//**************************************************************************************************************
 
 //menu for user passenger
 void passengerMenu(userPassenger passenger) {
@@ -529,7 +619,7 @@ void tripBookings() {
 		ifstream infile;
 		infile.open(entry.path());
 
-		if (infile.is_open()) {   //checking whether the file is open
+		if (infile.is_open()) {
 			jobs++;
 			cout << "Job " << jobs << endl;
 			cout << LONG_LINE_BREAK << endl;
@@ -650,7 +740,7 @@ void bankDetails(userDriver driver) {
 }
 
 void dayReport() {
-	cout << "Day Report" << endl;
+	cout << "Day Report of trips" << endl;
 }
 
 //user can request a ride
@@ -685,7 +775,7 @@ void requestRide(userPassenger passenger) {
 	string fileName = passenger.f_name + " " + passenger.l_name + ".txt";
 	ride.passengerName = passenger.f_name + " " + passenger.l_name;
 
-	//writes to file
+	//writes user input to file
 	ofstream outfile;
 	outfile.open("Available_Rides/" + fileName);
 	outfile << ride.passengerName << endl << endl;
@@ -754,10 +844,11 @@ void income() {
 		infile.open(entry.path());
 		int line = 1;
 
-		if (infile.is_open()) {   //checking whether the file is open
+		if (infile.is_open()) {
 			trip++;
 			cout << endl << "Trip: " << trip << endl;
 			cout << LONG_LINE_BREAK << endl;
+			cout << "Name: ";
 			string tp;
 			while (getline(infile, tp)) {
 				cout << tp << endl;
@@ -767,7 +858,7 @@ void income() {
 				}
 				line++;
 			}
-			infile.close(); //close the file object.
+			infile.close();
 		}
 	}
 	double totalIncomeAfterTax = totalIncome - totalIncome * GST;
