@@ -159,14 +159,13 @@ int main() {
 menu_restart:
 	bool program_running = true;
 
-	cout << LONG_LINE_BREAK << endl;
-
 	while (program_running) { // Main program loop
 		if (!LOGGED_IN) { // Menu when user isn't logged in
 			string menu_choice;
 
-			cout << "\t\tTaxi Better\n" << LONG_LINE_BREAK << endl;
-			cout << "\t1. Driver \n\t2. Passenger\n\t3. Admin\n\t4. Exit Program\n" << LONG_LINE_BREAK << endl;
+			cout << LONG_LINE_BREAK << endl;
+			cout << endl << "\t\tWelcome to... Taxi Better!!!\n" << endl << LONG_LINE_BREAK << endl << endl;
+			cout << "\t1. Driver \n\t2. Passenger\n\t3. Admin\n\t4. Exit Program\n\n" << LONG_LINE_BREAK << endl << endl;
 			cout << "  Or Type 'help' for help with the menu";
 			cout << "  What would you like to do?: ";
 			cin >> menu_choice;
@@ -231,8 +230,13 @@ menu_restart:
 void logOrReg(loginType user_type) {
 login_restart:
 	string log_reg;
-	cout << "  1. Log in\n  2. Register\n Your choice: ";
+
+	cout << endl << LONG_LINE_BREAK << endl << endl;
+	cout << "  1. Log in\n  2. Register\n";
+	cout << endl << LONG_LINE_BREAK << endl;
+	cout << "Your choice : ";
 	cin >> log_reg;
+
 	try {
 		if (log_reg == "help") {
 			cout << help(2);
@@ -260,7 +264,9 @@ login_restart:
 * to enter their email and password to log back and access the program - Jordan Code
 */
 bool login() {
-	cout << "\nLogin\n\n";
+	cout << endl << LONG_LINE_BREAK << endl;
+	cout << "\n\tLogin\n\n";
+	cout << LONG_LINE_BREAK << endl;
 
 	ifstream login_from_file;
 	login_from_file.open("users.csv");
@@ -384,7 +390,9 @@ bool registration(loginType user_type) {
 	switch (user_type) {
 	case Driver: {
 		userDriver driver;
-		cout << "\nDriver Reg\n" << LINE_BREAK << endl;
+		cout << endl << LONG_LINE_BREAK << endl;
+		cout << "\nDriver Registration\n\n";
+		cout << LONG_LINE_BREAK << endl;
 		cout << "\nEnter your first name: ";
 		cin >> driver.f_name;
 		cout << "Enter last name: ";
@@ -429,7 +437,9 @@ bool registration(loginType user_type) {
 	}
 	case Passenger: {
 		userPassenger passenger;
-		cout << "\nPassenger Registration\n" << LINE_BREAK << endl;
+		cout << endl << LONG_LINE_BREAK << endl;
+		cout << "\nPassenger Registration\n\n";
+		cout << LONG_LINE_BREAK << endl;
 		cout << "Enter your first name: ";
 		cin >> passenger.f_name;
 		cout << "Enter last name: ";
@@ -498,13 +508,14 @@ menu_restart:
 
 	while (loggedIn) {
 		cout << LONG_LINE_BREAK << endl;
-		cout << "\t\tMenu - Passenger" << endl;
-		cout << LONG_LINE_BREAK << endl;
+		cout << "\t\t\nMenu - Passenger\n" << endl;
+		cout << LONG_LINE_BREAK << endl << endl;
 		cout << "\t1. Request a Ride" << endl;
 		cout << "\t2. Update Payment Method" << endl;
 		cout << "\t3. View Trip Cost per Kilometer" << endl;
 		cout << "\t4. View Terms & Conditions" << endl;
-		cout << "\t5. Log Out" << endl;
+		cout << "\t5. Log Out" << endl << endl;
+		cout << LONG_LINE_BREAK << endl;
 		cout << "Enter Option: ";
 		cin >> menuType;
 
@@ -542,13 +553,14 @@ menu_restart:
 
 	while (loggedIn) {
 		cout << LONG_LINE_BREAK << endl;
-		cout << "\t\tMenu - Driver" << endl;
-		cout << LONG_LINE_BREAK << endl;
+		cout << "\t\t\nMenu - Driver\n" << endl;
+		cout << LONG_LINE_BREAK << endl << endl;
 		cout << "\t1. View Available Trips" << endl;
 		cout << "\t2. Update Bank Details" << endl;
 		cout << "\t3. View Report of Trips" << endl;
 		cout << "\t4. View Terms & Conditions" << endl;
-		cout << "\t5. Log Out" << endl;
+		cout << "\t5. Log Out" << endl << endl;
+		cout << LONG_LINE_BREAK << endl;
 		cout << "Enter Option: ";
 		cin >> menuType;
 
@@ -586,13 +598,13 @@ menu_restart:
 
 	while (loggedIn) {
 		cout << LONG_LINE_BREAK << endl;
-		cout << "\t\tMenu - Admin" << endl;
-		cout << LONG_LINE_BREAK << endl;
+		cout << "\t\t\nMenu - Admin\n" << endl;
+		cout << LONG_LINE_BREAK << endl << endl;
 		cout << "\t1. Trips and Total Income" << endl;
 		cout << "\t2. User Information" << endl;
 		cout << "\t3. Driver Information" << endl;
-		cout << "\t4. View Terms & Conditions" << endl;
-		cout << "\t5. Log Out" << endl;
+		cout << "\t4. Log Out" << endl << endl;
+		cout << LONG_LINE_BREAK << endl;
 		cout << "Enter Option: ";
 		cin >> menuType;
 
@@ -608,9 +620,6 @@ menu_restart:
 			driverInfo();
 			break;
 		case 4:
-			tAndC();
-			break;
-		case 5:
 			cout << "Logout" << endl;
 			loggedIn = false;
 			break;
@@ -639,13 +648,13 @@ void tAndC() {
 
 	switch (agree) {
 	case 'y':
-		cout << "You agree" << endl;
+		cout << "\nYou agree!\n" << endl;
 		break;
 	case 'n':
-		cout << "You Disagree" << endl;
+		cout << "\nYou Disagree :(\n" << endl;
 		break;
 	default:
-		cout << "You have to input either 'y' or 'n'" << endl;
+		cout << "\nYou have to input either 'y' or 'n'\n" << endl;
 		break;
 	}
 }
@@ -654,7 +663,7 @@ void tAndC() {
 void availableTrips() {
 	cout << LONG_LINE_BREAK << endl;
 	cout << "Current Jobs: " << endl;
-	cout << LONG_LINE_BREAK << endl << endl;
+	cout << LONG_LINE_BREAK << endl;
 
 	//reads 'Available_Rides' folder and displays all the txt files in it
 	int jobs = 0;
