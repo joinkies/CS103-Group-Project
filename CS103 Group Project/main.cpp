@@ -165,7 +165,7 @@ menu_restart:
 		if (!LOGGED_IN) { // Menu when user isn't logged in
 			string menu_choice;
 
-			cout << "\t\tTaxi Program\n" << LONG_LINE_BREAK << endl;
+			cout << "\t\tTaxi Better\n" << LONG_LINE_BREAK << endl;
 			cout << "\t1. Driver \n\t2. Passenger\n\t3. Admin\n\t4. Exit Program\n" << LONG_LINE_BREAK << endl;
 			cout << "  Or Type 'help' for help with the menu";
 			cout << "  What would you like to do?: ";
@@ -502,7 +502,7 @@ menu_restart:
 		cout << LONG_LINE_BREAK << endl;
 		cout << "\t1. Request a Ride" << endl;
 		cout << "\t2. Update Payment Method" << endl;
-		cout << "\t3. Trip Cost per Kilometer" << endl;
+		cout << "\t3. View Trip Cost per Kilometer" << endl;
 		cout << "\t4. View Terms & Conditions" << endl;
 		cout << "\t5. Log Out" << endl;
 		cout << "Enter Option: ";
@@ -545,7 +545,7 @@ menu_restart:
 		cout << "\t\tMenu - Driver" << endl;
 		cout << LONG_LINE_BREAK << endl;
 		cout << "\t1. View Available Trips" << endl;
-		cout << "\t2. View Bank Details" << endl;
+		cout << "\t2. Update Bank Details" << endl;
 		cout << "\t3. View Report of Trips" << endl;
 		cout << "\t4. View Terms & Conditions" << endl;
 		cout << "\t5. Log Out" << endl;
@@ -722,7 +722,6 @@ void enterJobDetails(int job) {
 
 	int loop = 1;
 	ofstream outfile;
-	ifstream infile;
 
 	//copys ride details to a new file in 'Completed Rides' and deletes ride request
 	string path = "Available_Rides/";
@@ -733,8 +732,7 @@ void enterJobDetails(int job) {
 
 			string fLine;
 			getline(infile, fLine);
-			currentDriver.trips++;
-			string name = fLine + " " + to_string(currentDriver.trips) + ".txt";
+			string name = fLine + ".txt";
 
 			outfile.open("Completed_Rides/" + name);
 			outfile << fLine << endl;
@@ -759,56 +757,6 @@ void enterJobDetails(int job) {
 	outfile << "Trip Cost:\n" << tripCost << endl;
 
 	outfile.close();
-
-	currentDriver.trips++;
-
-	infile.open("users.csv");
-	outfile.open("tempusers.csv");
-
-	string line;
-	for (int x = 0; x < getUserAmount(); x++) {
-		getline(infile, line);
-
-		string arr[13];
-		stringstream ss(line);
-		for (int i = 0; i < 13; i++) {
-			string a;
-			getline(ss, a, ',');
-			arr[i] = a;
-		}
-		if (stoi(arr[0]) == currentDriver.acc_no) {
-			outfile << currentDriver.acc_no << ','
-				<< currentDriver.email << ','
-				<< currentDriver.password << ','
-				<< "Driver" << ','
-				<< currentDriver.f_name << ','
-				<< currentDriver.l_name << ','
-				<< currentDriver.age << ','
-				<< currentDriver.bank_number << ','
-				<< currentDriver.license_number << ','
-				<< currentDriver.driving_exp << ','
-				<< currentDriver.car_type << ','
-				<< currentDriver.car_age << ','
-				<< currentDriver.trips << endl;
-		}
-		else {
-			outfile << line << endl;
-		}
-	}
-	infile.close();
-	outfile.close();
-
-	infile.open("tempusers.csv");
-	outfile.open("users.csv");
-	for (int i = 0; i < getTempUsers(); i++) {
-		getline(infile, line);
-		outfile << line << endl;
-	}
-	outfile.close();
-	outfile.open("tempusers.csv", ios::trunc);
-	infile.close();
-	outfile.close();
-
 }
 
 //view and update bank details - Jack and Jordan Code
@@ -889,7 +837,7 @@ void bankDetails(userDriver driver) {
 // displays all the trips completed by the driver logged in - Jack Code
 void tripsReport() {
 	cout << LONG_LINE_BREAK << endl;
-	cout << "Day Report of trips" << endl;
+	cout << "Report of Trips" << endl;
 	cout << LONG_LINE_BREAK << endl;
 
 	int trip = 0;
@@ -902,13 +850,12 @@ void tripsReport() {
 		if (infile.is_open()) {
 			string checkCurrentDriver;
 			string fileContents;
-			cout << currentDriver.trips;
 			while (getline(infile, checkCurrentDriver)) {
-				if (checkCurrentDriver == currentDriver.f_name + " " + currentDriver.l_name + " " + to_string(currentDriver.trips)) {
+				if (checkCurrentDriver == currentDriver.f_name + " " + currentDriver.l_name) {
 					infile.close();
 					infile.open(entry.path());
 					trip++;
-					cout << endl << "Trip: " << trip << endl;
+					cout << "Trip: " << trip << endl;
 					cout << LONG_LINE_BREAK << endl;
 					while (getline(infile, fileContents)) {
 						cout << fileContents << endl;
@@ -928,7 +875,7 @@ void requestRide(userPassenger passenger) {
 	Request ride;
 
 	cout << LONG_LINE_BREAK << endl;
-	cout << "Request a ride" << endl;
+	cout << "Request a Ride" << endl;
 	cout << LONG_LINE_BREAK << endl;
 
 	cout << "Current Location:" << endl;
@@ -979,7 +926,7 @@ void updatePayment(userPassenger passenger) {
 	char askUserUpdate;
 
 	cout << LONG_LINE_BREAK << endl;
-	cout << "Update Payment Type" << endl;
+	cout << "Update Payment Method" << endl;
 	cout << LONG_LINE_BREAK << endl;
 
 	cout << "Would you like to update your card details? (y/n): ";
@@ -1089,13 +1036,14 @@ void income() {
 	}
 	double totalIncomeAfterTax = totalIncome - totalIncome * GST;
 	cout << LONG_LINE_BREAK << endl;
+
 	cout << "Toal Income: $" << totalIncome << endl;
 	cout << "Toal Income After Tax: $" << totalIncomeAfterTax << endl;
 }
 
 // - Jordan Code
 void userInfo() {
-	cout << "User Info" << endl << LONG_LINE_BREAK << endl << endl;
+	cout << "User Information" << endl << LONG_LINE_BREAK << endl << endl;
 	ifstream view_file;
 	view_file.open("users.csv");
 	string line;
@@ -1123,7 +1071,7 @@ void userInfo() {
 
 // - Jordan Code
 void driverInfo() {
-	cout << "Driver Info" << endl;
+	cout << "Driver Information" << endl;
 
 	ifstream view_file;
 	view_file.open("users.csv");
