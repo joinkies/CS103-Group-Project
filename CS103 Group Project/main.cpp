@@ -629,10 +629,9 @@ void tAndC() {
 	cout << "Terms and Conditions" << endl;
 	cout << LONG_LINE_BREAK << endl;
 
-	cout << "1. afjbsdk*bskgbsgjgbksg\n";
-	cout << "2. dfhsdujafsdgs\n";
-	cout << "3. dsgihisgobonpnfsdbs\n";
-	cout << "4. sdgbsbgoasdkgiw\n\n";
+	cout << "1. We are not responsible for any damages made by the passenger\n";
+	cout << "2. Poor behaviour will result in a ban from the company\n";
+	cout << "3. You must wear face coverage or supply exemption papers\n\n";
 
 	//checks if the user agrees with the terms and conditions
 	cout << "Do you agree to the terms and conditions above? (y/n)";
